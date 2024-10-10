@@ -1,12 +1,33 @@
 pragma circom 2.0.0;
 
 include "../node_modules/circomlib/circuits/poseidon.circom";
+include "../node_modules/circomlib/circuits/mux1.circom";
 
 template CheckRoot(n) { // compute the root of a MerkleTree of n Levels 
     signal input leaves[2**n];
     signal output root;
 
-    //[assignment] insert your code here to calculate the Merkle root from 2^n leaves
+    signal intermidiate[2**n-1]; // leaves의 hash값을 저장할 level이 1 높은 배열
+
+    for (var i =0 ; i< 2**n; i++){
+        intermidiate[i] = leaves[i];
+    }
+
+    for(var level = 0; level < n; level++){
+        var levelSize = 2**(n-level);
+        var halfSize = levelSize \ 2;
+
+        for(var i = 0; i < levelSize; i++){
+            intermidiate[i] = poseidon([intermidiate[2*i], intermidiate[2*i+1]]);
+        }
+
+    }
+
+    root <== intermidiate[0];
+
+    
+    
+
 }
 
 template MerkleTreeInclusionProof(n) {
